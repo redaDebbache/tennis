@@ -25,7 +25,7 @@ public class Game {
         Score winnerScore = getPointWinner(player);
         winnerScore.winAPoint();
 
-        Record ruleRecord = RuleType.matchRule(first.getCurrentPoint(), second.getCurrentPoint())
+        Record ruleRecord = RuleType.matchRule(first, second)
                 .getRule().rule(first, second, player);
         this.gameResume.addRecord(ruleRecord);
         return this.gameResume;

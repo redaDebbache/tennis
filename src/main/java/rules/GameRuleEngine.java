@@ -13,43 +13,62 @@ import static model.Point.*;
 public class GameRuleEngine {
     private static final String WINS_1_POINT_LABEL = "%s wins 1 point";
     private static final String WINS_THE_GAME_LABEL = "%s wins the game";
+    private static final String WINS_THE_SET_LABEL = "%s wins the set";
 
     private static boolean winWithAdv(Point first, Point second) {
-       return (first == POINT || second == POINT) && Math.abs(first.getScore() - second.getScore()) == 1;
+        return (first == POINT || second == POINT) && Math.abs(first.getScore() - second.getScore()) == 1;
     }
 
     private static boolean winWithPoints(Point first, Point second) {
-       return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) == 1;
+        return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) == 1;
     }
 
-    private static Record buildDeuceRecord(Player player){
-        return new Record(Point.DEUCE, Point.DEUCE, format(WINS_1_POINT_LABEL, player.getName()));
+    private static Record buildDeuceRecord(Score first, Score second, Player player) {
+        return new Record(Point.DEUCE, Point.DEUCE, first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()));
     }
 
-    private static Record buildGameWinnerRecord(Player player) {
-        return new Record(ZERO, ZERO, format(WINS_1_POINT_LABEL, player.getName()), format(WINS_THE_GAME_LABEL, player.getName()));
+    private static Record buildGameWinnerRecord(Score first, Score second, Player player) {
+        Stream.of(first, second).filter(score -> score.getPlayer().equals(player)).findFirst().ifPresent(Score::winASet);
+        return winASet(first, second) ? buildSetWinnerRecord(first, second, player) : buildGameWinRecord(first, second, player);
+    }
+
+    private static Record buildSetWinnerRecord(Score first, Score second, Player player) {
+        first.init();
+        second.init();
+        return new Record(first.point(), second.point(), first.getWinnedGame(), second.getWinnedGame(), format(WINS_THE_GAME_LABEL, player.getName()), format(WINS_THE_SET_LABEL, player.getName()));
+    }
+
+    private static Record buildGameWinRecord(Score first, Score second, Player player) {
+        first.init();
+        second.init();
+        return new Record(ZERO, ZERO, first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()), format(WINS_THE_GAME_LABEL, player.getName()));
     }
 
     private static Record buildPointWinner(Score first, Score second, Player player) {
-        return new Record(first.getCurrentPoint(), second.getCurrentPoint(), format(WINS_1_POINT_LABEL, player.getName()));
+        return new Record(first.point(), second.point(), first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()));
     }
 
     private static Record buildAdvRecord(Score first, Score second, Player player) {
         Score loserRecord = first.getPlayer().equals(player) ? second : first;
         loserRecord.loseAdv();
-        return new Record(first.getCurrentPoint(), second.getCurrentPoint(), format(WINS_1_POINT_LABEL, player.getName()));
+        return new Record(first.point(), second.point(), first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()));
+    }
+
+    private static boolean winASet(Score first, Score second) {
+        return (first.getWinnedGame() >= 6 || second.getWinnedGame() >= 6) && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
     }
 
     public enum RuleType {
-        DEUCE_RULE((first, second) -> first == ADV && second == ADV, (first, second, player) -> buildDeuceRecord(player)),
+        DEUCE_RULE((first, second) -> first.point() == ADV && second.point() == ADV, GameRuleEngine::buildDeuceRecord),
 
-        ADV_RULE((first, second) -> (first == ADV || second == ADV), GameRuleEngine::buildAdvRecord),
+        ADV_RULE((first, second) -> (first.point() == ADV || second.point() == ADV), GameRuleEngine::buildAdvRecord),
 
-        GAME_WINNING_RULE(((first, second) -> winWithAdv(first, second) || winWithPoints(first, second)), (first, second, player) -> buildGameWinnerRecord(player)),
+        GAME_WINNING_RULE(((first, second) -> winWithAdv(first.point(), second.point()) || winWithPoints(first.point(), second.point())), GameRuleEngine::buildGameWinnerRecord),
 
         SIMPLE_POINT_WINNING_RULE((first, second) -> true, GameRuleEngine::buildPointWinner);
 
         private RuleCondition condition;
+
         private GameRule rule;
 
         RuleType(RuleCondition condition, GameRule rule) {
@@ -60,7 +79,8 @@ public class GameRuleEngine {
         public GameRule getRule() {
             return rule;
         }
-        public static RuleType matchRule(Point first, Point second){
+
+        public static RuleType matchRule(Score first, Score second) {
             return Stream.of(values()).filter(r -> r.condition.match(first, second)).findFirst().orElse(SIMPLE_POINT_WINNING_RULE);
         }
 
@@ -71,6 +91,6 @@ public class GameRuleEngine {
     }
 
     interface RuleCondition {
-        boolean match(Point first, Point second);
+        boolean match(Score first, Score second);
     }
 }
