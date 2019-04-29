@@ -53,7 +53,7 @@ public class GameTest {
 
     @Test
     public void should_have_a_set_winner() {
-        playUntilGame();
+        playConfiguredGame();
         assertWinsGame(second);
     }
 
@@ -70,14 +70,14 @@ public class GameTest {
         Record lastRecord = gameResume.getLastRecord();
         assertThat(lastRecord.getFirst()).isEqualTo(ZERO);
         assertThat(lastRecord.getSecond()).isEqualTo(ZERO);
-        assertThat(lastRecord.getFirstScore()).isEqualTo(0);
-        assertThat(lastRecord.getSecondScore()).isEqualTo(1);
+        assertThat(lastRecord.getFirstSet()).isEqualTo(0);
+        assertThat(lastRecord.getSecondSet()).isEqualTo(1);
     }
 
     @Test
     public void should_activate_deuce_when_both_players_reach_40() {
         //Given
-        playUntilDeuce();
+        playConfiguredDeuce();
         assertWInPoint(first);
         assertWInPoint(second);
         GameResume gameResume = game.getGameResume();
@@ -91,7 +91,7 @@ public class GameTest {
     @Test
     public void should_show_ADV_when_both_players_reach_40() {
         //Given
-        playUntilDeuce();
+        playConfiguredDeuce();
         assertWInPoint(first);
         GameResume gameResume = game.getGameResume();
         //When
@@ -104,7 +104,7 @@ public class GameTest {
     @Test
     public void should_return_to_deuce_when_lose_adv() {
         //Given
-        playUntilDeuce();
+        playConfiguredDeuce();
         game.winPoint(first);
         game.winPoint(second);
         GameResume gameResume = game.getGameResume();
@@ -118,22 +118,22 @@ public class GameTest {
     @Test
     public void should_win_a_set_with_points() {
         //Given
-        playUntilGame();
+        playConfiguredGame();
         game.winPoint(second);
 
-        playUntilGame();
+        playConfiguredGame();
         game.winPoint(second);
 
-         playUntilGame();
+        playConfiguredGame();
         game.winPoint(second);
 
-         playUntilGame();
+        playConfiguredGame();
         game.winPoint(second);
 
-         playUntilGame();
+        playConfiguredGame();
         game.winPoint(second);
 
-         playUntilGame();
+        playConfiguredGame();
         game.winPoint(second);
 
         GameResume gameResume = game.getGameResume();
@@ -143,17 +143,85 @@ public class GameTest {
         assertThat(lastRecord.getMessage()).isEqualTo("Player 2 wins the set");
     }
 
-    private void playUntilDeuce() {
-        assertWInPoint(first);
-        assertWInPoint(first);
-        assertWInPoint(second);
-        assertWInPoint(first);
-        assertWInPoint(second);
-        assertWInPoint(second);
+    @Test
+    public void should_win_a_tie_break() {
+        //Given
+        playUntilTieBreak();
+
+        Record tieBreakRecord = game.getGameResume().getLastRecord();
+        assertThat(tieBreakRecord.getFirstSet()).isEqualTo(6);
+        assertThat(tieBreakRecord.getSecondSet()).isEqualTo(6);
+
+        playUntilGame(second);
+
+
+        playUntilGame(second);
+
+
+        Record lastRecord = game.getGameResume().getLastRecord();
+        assertThat(lastRecord.getFirstSet()).isEqualTo(6);
+        assertThat(lastRecord.getSecondSet()).isEqualTo(8);
+        assertThat(lastRecord.getFirstTieBreak()).isEqualTo(0);
+        assertThat(lastRecord.getSecondTieBreak()).isEqualTo(1);
     }
 
-    private void playUntilGame() {
-        playUntilDeuce();
+    private void playUntilTieBreak() {
+        playUntilGame(first);
+        game.winPoint(first);
+
+        playUntilGame(second);
         game.winPoint(second);
+
+        playUntilGame(first);
+        game.winPoint(first);
+
+        playUntilGame(second);
+        game.winPoint(second);
+
+        playUntilGame(first);
+        game.winPoint(first);
+
+        playUntilGame(second);
+        game.winPoint(second);
+
+        playUntilGame(first);
+        game.winPoint(first);
+
+        playUntilGame(second);
+        game.winPoint(second);
+
+        playUntilGame(first);
+        game.winPoint(first);
+
+        playUntilGame(second);
+        game.winPoint(second);
+
+        playUntilGame(first);
+        game.winPoint(first);
+
+        playUntilGame(second);
+
+    }
+
+    private void playConfiguredDeuce() {
+        assertWInPoint(first);
+        assertWInPoint(first);
+        assertWInPoint(second);
+        assertWInPoint(first);
+        assertWInPoint(second);
+        assertWInPoint(second);
+
+    }
+
+    private void playConfiguredGame() {
+        playConfiguredDeuce();
+        game.winPoint(second);
+    }
+
+    private void playUntilGame(Player player) {
+        game.winPoint(player);
+        game.winPoint(player);
+        game.winPoint(player);
+        game.winPoint(player);
     }
 }
