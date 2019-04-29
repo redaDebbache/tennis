@@ -23,7 +23,7 @@ public class GameResume {
     }
 
     public GameResume startGame(){
-        addRecord(new Record(ZERO, ZERO, START_OF_GAME_LABEL));
+        addRecord(new Record(ZERO, ZERO, 0, 0, START_OF_GAME_LABEL));
         return this;
     }
 

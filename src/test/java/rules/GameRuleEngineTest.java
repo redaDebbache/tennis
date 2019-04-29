@@ -1,18 +1,29 @@
 package rules;
 
-import model.Point;
+import model.Score;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.*;
+import static model.Point.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static rules.GameRuleEngine.RuleType.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GameRuleEngineTest {
+
+    @Mock
+    private Score first;
+    @Mock
+    private Score second;
 
     @Test
     public void validate_deuce_rule() {
         //Given
-        Point first = Point.ADV;
-        Point second = Point.ADV;
+        when(first.point()).thenReturn(ADV);
+        when(second.point()).thenReturn(ADV);
         //When
         GameRuleEngine.RuleType ruleType = GameRuleEngine.RuleType.matchRule(first, second);
         //Then
@@ -22,8 +33,10 @@ public class GameRuleEngineTest {
     @Test
     public void validate_adv_rule() {
         //Given
-        Point first = Point.ADV;
-        Point second = Point.FOURTY;
+
+        when(first.point()).thenReturn(ADV);
+        when(second.point()).thenReturn(FOURTY);
+        //When
         //When
         GameRuleEngine.RuleType ruleType = GameRuleEngine.RuleType.matchRule(first, second);
         //Then
@@ -33,8 +46,8 @@ public class GameRuleEngineTest {
     @Test
     public void validate_game_winning_rule() {
         //Given
-        Point first = Point.POINT;
-        Point second = Point.FOURTY;
+        when(first.point()).thenReturn(POINT);
+        when(second.point()).thenReturn(FOURTY);
         //When
         GameRuleEngine.RuleType ruleType = GameRuleEngine.RuleType.matchRule(first, second);
         //Then
@@ -44,12 +57,11 @@ public class GameRuleEngineTest {
     @Test
     public void validate_point_winning_rule() {
         //Given
-        Point first = Point.THIRTY;
-        Point second = Point.FIFTEEN;
+        when(first.point()).thenReturn(THIRTY);
+        when(second.point()).thenReturn(FIFTEEN);
         //When
         GameRuleEngine.RuleType ruleType = GameRuleEngine.RuleType.matchRule(first, second);
         //Then
         assertThat(ruleType).isEqualTo(SIMPLE_POINT_WINNING_RULE);
     }
-
 }
