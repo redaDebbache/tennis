@@ -12,7 +12,6 @@ public class Score {
     public Score(Player player) {
         this.player = player;
         this.currentPoint = ZERO;
-
     }
 
     public void winAPoint() {

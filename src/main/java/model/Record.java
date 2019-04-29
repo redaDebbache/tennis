@@ -47,7 +47,7 @@ public class Record {
     public String getMessage() {
         return message;
     }
-
+  
     public Integer getFirstSet() {
         return firstSet;
     }

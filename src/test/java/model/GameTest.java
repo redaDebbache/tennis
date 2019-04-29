@@ -224,4 +224,9 @@ public class GameTest {
         game.winPoint(player);
         game.winPoint(player);
     }
+
+    private void playUntilGame() {
+        playUntilDeuce();
+        game.winPoint(second);
+    }
 }
