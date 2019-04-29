@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static model.Point.ZERO;
+import static model.Point.*;
 import static org.assertj.core.api.Assertions.*;
 
 public class GameTest {
@@ -46,7 +46,7 @@ public class GameTest {
         assertThat(records.size()).isEqualTo(2);
         Record record = records.get(1);
         assertThat(record.getTitle()).isEqualTo("Player 1 wins 1 point");
-        assertThat(record.getFirst()).isEqualTo(Point.FIFTEEN);
+        assertThat(record.getFirst()).isEqualTo(FIFTEEN);
         assertThat(record.getSecond()).isEqualTo(ZERO);
 
     }
@@ -59,8 +59,8 @@ public class GameTest {
         assertWInPoint(first);
         assertWInPoint(second);
         assertWInPoint(second);
+        assertWInPoint(second);
         assertWinsMAtch(second);
-
     }
 
     private void assertWInPoint(Player player) {
@@ -76,5 +76,41 @@ public class GameTest {
         Record lastRecord = gameResume.getLastRecord();
         assertThat(lastRecord.getFirst()).isEqualTo(ZERO);
         assertThat(lastRecord.getSecond()).isEqualTo(ZERO);
+    }
+
+    @Test
+    public void should_activate_deuce_when_both_players_reach_40() {
+        //Given
+        playUntilDeuce();
+        assertWInPoint(first);
+        assertWInPoint(second);
+        GameResume gameResume = game.getGameResume();
+        //When
+        Record lastRecord = gameResume.getLastRecord();
+        //Then
+        assertThat(lastRecord.getFirst()).isEqualTo(DEUCE);
+        assertThat(lastRecord.getSecond()).isEqualTo(DEUCE);
+    }
+
+    @Test
+    public void should_show_ADV_when_both_players_reach_40() {
+        //Given
+        playUntilDeuce();
+        assertWInPoint(first);
+        GameResume gameResume = game.getGameResume();
+        //When
+        Record lastRecord = gameResume.getLastRecord();
+        //Then
+        assertThat(lastRecord.getFirst()).isEqualTo(ADV);
+        assertThat(lastRecord.getSecond()).isEqualTo(FOURTY);
+    }
+
+    private void playUntilDeuce() {
+        assertWInPoint(first);
+        assertWInPoint(first);
+        assertWInPoint(second);
+        assertWInPoint(first);
+        assertWInPoint(second);
+        assertWInPoint(second);
     }
 }

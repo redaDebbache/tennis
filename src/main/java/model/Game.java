@@ -1,11 +1,8 @@
 package model;
 
-
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 
-import static model.Point.WIN;
+import static rules.GameRuleEngine.RuleType;
 
 public class Game {
     private static final String PLAYER_MUST_NOT_BE_NULL_ERROR_MESSAGE = "Player must not be null";
@@ -24,11 +21,13 @@ public class Game {
         return new Score(Objects.requireNonNull(player, PLAYER_MUST_NOT_BE_NULL_ERROR_MESSAGE));
     }
 
-    public GameResume winPoint(Player player){
+    public GameResume winPoint(Player player) {
         Score winnerScore = getPointWinner(player);
         winnerScore.winAPoint();
-        getMatchWinner().ifPresentOrElse(score -> gameResume.buildWinnerRecord(score)
-                , () -> gameResume.buildPointWinnerRecord(first.getCurrentPoint(), second.getCurrentPoint(), player));
+
+        Record ruleRecord = RuleType.matchRule(first.getCurrentPoint(), second.getCurrentPoint())
+                .getRule().rule(first, second, player);
+        this.gameResume.addRecord(ruleRecord);
         return this.gameResume;
     }
 
@@ -40,7 +39,4 @@ public class Game {
         return gameResume;
     }
 
-    public Optional<Score> getMatchWinner(){
-        return Stream.of(first, second).filter(p -> p.getCurrentPoint() == WIN).findFirst();
-    }
 }

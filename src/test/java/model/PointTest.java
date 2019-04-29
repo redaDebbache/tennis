@@ -12,7 +12,6 @@ public class PointTest {
        assertThat(ZERO.getNextPoint()).isEqualTo(FIFTEEN);
        assertThat(FIFTEEN.getNextPoint()).isEqualTo(THIRTY);
        assertThat(THIRTY.getNextPoint()).isEqualTo(FOURTY);
-       assertThat(FOURTY.getNextPoint()).isEqualTo(WIN);
-       assertThat(WIN.getNextPoint()).isEqualTo(ZERO);
+       assertThat(FOURTY.getNextPoint()).isEqualTo(ADV);
     }
 }
