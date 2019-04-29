@@ -13,6 +13,13 @@ public class Score {
         this.currentPoint = this.currentPoint.getNextPoint();
     }
 
+
+    public void loseAdv(){
+        if(currentPoint == Point.ADV) {
+            this.currentPoint = Point.FOURTY;
+        }
+    }
+
     public Player getPlayer() {
         return player;
     }
