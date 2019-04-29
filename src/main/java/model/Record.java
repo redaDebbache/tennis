@@ -4,26 +4,32 @@ public class Record {
     private static final String EMPTY = "";
     private final Point first;
     private final Point second;
-    private final Integer firstScore;
-    private final Integer secondScore;
+    private final Integer firstSet;
+    private final Integer secondSet;
+    private final Integer firstTieBreak;
+    private final Integer secondTieBreak;
     private final String title;
     private String message;
 
-    public Record(Point first, Point second, Integer firstScore, Integer secondScore, String title) {
-        this.first = first;
-        this.second = second;
-        this.firstScore = firstScore;
-        this.secondScore = secondScore;
-        this.title = title;
-        this.message = EMPTY;
+    public Record(Point first, Point second, Integer firstSet, Integer secondSet, String title) {
+       this(first, second, firstSet, secondSet, 0, 0, title, EMPTY);
     }
-    public Record(Point first, Point second, Integer firstScore, Integer secondScore, String title, String message) {
+
+
+    public Record(Point first, Point second, Integer firstSet, Integer secondSet, String title, String message) {
+        this(first, second, firstSet, secondSet, title);
+        this.message = message;
+    }
+
+    public Record(Point first, Point second, Integer firstSet, Integer secondSet, Integer firstTieBreak, Integer secondTieBreak, String title, String message) {
         this.first = first;
         this.second = second;
-        this.firstScore = firstScore;
-        this.secondScore = secondScore;
+        this.firstSet = firstSet;
+        this.secondSet = secondSet;
         this.title = title;
         this.message = message;
+        this.firstTieBreak = firstTieBreak;
+        this.secondTieBreak = secondTieBreak;
     }
 
     public Point getFirst() {
@@ -41,12 +47,20 @@ public class Record {
     public String getMessage() {
         return message;
     }
-
-    public Integer getFirstScore() {
-        return firstScore;
+  
+    public Integer getFirstSet() {
+        return firstSet;
     }
 
-    public Integer getSecondScore() {
-        return secondScore;
+    public Integer getSecondSet() {
+        return secondSet;
+    }
+
+    public Integer getFirstTieBreak() {
+        return firstTieBreak;
+    }
+
+    public Integer getSecondTieBreak() {
+        return secondTieBreak;
     }
 }
