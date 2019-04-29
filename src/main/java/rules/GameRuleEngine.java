@@ -5,6 +5,9 @@ import model.Point;
 import model.Record;
 import model.Score;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -20,7 +23,7 @@ public class GameRuleEngine {
     }
 
     private static boolean winWithPoints(Point first, Point second) {
-        return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) == 1;
+        return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) >= 1;
     }
 
     private static Record buildDeuceRecord(Score first, Score second, Player player) {
@@ -29,18 +32,27 @@ public class GameRuleEngine {
 
     private static Record buildGameWinnerRecord(Score first, Score second, Player player) {
         Stream.of(first, second).filter(score -> score.getPlayer().equals(player)).findFirst().ifPresent(Score::winASet);
-        return winASet(first, second) ? buildSetWinnerRecord(first, second, player) : buildGameWinRecord(first, second, player);
+        return winATieBreak(first, second) ? buildTieBreakRecord(first, second, player) : winASet(first, second) ? buildSetWinnerRecord(first, second, player) : buildGameWinRecord(first, second, player);
+    }
+
+    private static Record buildTieBreakRecord(Score first, Score second, Player player) {
+        initscoresPoints(first, second);
+        Score winnerScore = first.getPlayer().equals(player) ? first : second;
+        winnerScore.winATieBreak();
+        return new Record(first.point(), second.point(), first.getWinnedGame(), second.getWinnedGame(), first.getTieBreak(), second.getTieBreak(), format(WINS_THE_GAME_LABEL, player.getName()), format(WINS_THE_SET_LABEL, player.getName()));
+    }
+
+    private static boolean winATieBreak(Score first, Score second) {
+        return first.getWinnedGame() >= 6 && second.getWinnedGame() >= 6 && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
     }
 
     private static Record buildSetWinnerRecord(Score first, Score second, Player player) {
-        first.init();
-        second.init();
+        initscoresPoints(first, second);
         return new Record(first.point(), second.point(), first.getWinnedGame(), second.getWinnedGame(), format(WINS_THE_GAME_LABEL, player.getName()), format(WINS_THE_SET_LABEL, player.getName()));
     }
 
     private static Record buildGameWinRecord(Score first, Score second, Player player) {
-        first.init();
-        second.init();
+        initscoresPoints(first, second);
         return new Record(ZERO, ZERO, first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()), format(WINS_THE_GAME_LABEL, player.getName()));
     }
 
@@ -58,14 +70,20 @@ public class GameRuleEngine {
         return (first.getWinnedGame() >= 6 || second.getWinnedGame() >= 6) && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
     }
 
+    private static void initscoresPoints(Score first, Score second) {
+        first.init();
+        second.init();
+    }
+
     public enum RuleType {
         DEUCE_RULE((first, second) -> first.point() == ADV && second.point() == ADV, GameRuleEngine::buildDeuceRecord),
 
-        ADV_RULE((first, second) -> (first.point() == ADV || second.point() == ADV), GameRuleEngine::buildAdvRecord),
+        ADV_RULE(GameRuleEngine::advRule, GameRuleEngine::buildAdvRecord),
 
         GAME_WINNING_RULE(((first, second) -> winWithAdv(first.point(), second.point()) || winWithPoints(first.point(), second.point())), GameRuleEngine::buildGameWinnerRecord),
 
         SIMPLE_POINT_WINNING_RULE((first, second) -> true, GameRuleEngine::buildPointWinner);
+
 
         private RuleCondition condition;
 
@@ -84,6 +102,11 @@ public class GameRuleEngine {
             return Stream.of(values()).filter(r -> r.condition.match(first, second)).findFirst().orElse(SIMPLE_POINT_WINNING_RULE);
         }
 
+    }
+
+    private static boolean advRule(Score first, Score second) {
+        List<Point> points = Stream.of(first, second).map(Score::point).collect(Collectors.toList());
+        return points.contains(ADV) && (points.contains(FOURTY) || points.contains(DEUCE));
     }
 
     public interface GameRule {
