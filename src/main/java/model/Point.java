@@ -7,7 +7,7 @@ public enum Point {
     FOURTY("40", "ADV", 3),
     ADV("ADV", "POINT", 4),
     POINT("ADV", "ZERO", 4),
-    DEUCE("DEUCE", "ZERO", 4);
+    DEUCE("DEUCE", "ADV", 4);
     private String value;
     private int score;
     private String nextPoint;

@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static model.Point.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GameTest {
     private Player first;
@@ -14,7 +14,7 @@ public class GameTest {
     private Game game;
 
     @Before
-    public void init(){
+    public void init() {
         this.first = new Player("Player 1");
         this.second = new Player("Player 2");
         this.game = new Game(first, second);
@@ -52,15 +52,9 @@ public class GameTest {
     }
 
     @Test
-    public void should_have_a_winner_and_stops_match() {
-        assertWInPoint(first);
-        assertWInPoint(first);
-        assertWInPoint(second);
-        assertWInPoint(first);
-        assertWInPoint(second);
-        assertWInPoint(second);
-        assertWInPoint(second);
-        assertWinsMAtch(second);
+    public void should_have_a_set_winner() {
+        playUntilGame();
+        assertWinsGame(second);
     }
 
     private void assertWInPoint(Player player) {
@@ -69,13 +63,15 @@ public class GameTest {
         assertThat(gameResume.getLastRecord().getTitle()).isEqualTo(String.format("%s wins 1 point", player.getName()));
     }
 
-    private void assertWinsMAtch(Player player) {
+    private void assertWinsGame(Player player) {
         GameResume gameResume = game.winPoint(player);
         assertThat(gameResume.getResume()).isNotEmpty();
         assertThat(gameResume.getResume()).isEqualTo("Player 2 wins the game");
         Record lastRecord = gameResume.getLastRecord();
         assertThat(lastRecord.getFirst()).isEqualTo(ZERO);
         assertThat(lastRecord.getSecond()).isEqualTo(ZERO);
+        assertThat(lastRecord.getFirstScore()).isEqualTo(0);
+        assertThat(lastRecord.getSecondScore()).isEqualTo(1);
     }
 
     @Test
@@ -105,6 +101,48 @@ public class GameTest {
         assertThat(lastRecord.getSecond()).isEqualTo(FOURTY);
     }
 
+    @Test
+    public void should_return_to_deuce_when_lose_adv() {
+        //Given
+        playUntilDeuce();
+        game.winPoint(first);
+        game.winPoint(second);
+        GameResume gameResume = game.getGameResume();
+        //When
+        Record lastRecord = gameResume.getLastRecord();
+        //Then
+        assertThat(lastRecord.getFirst()).isEqualTo(DEUCE);
+        assertThat(lastRecord.getSecond()).isEqualTo(DEUCE);
+    }
+
+    @Test
+    public void should_win_a_set_with_points() {
+        //Given
+        playUntilGame();
+        game.winPoint(second);
+
+        playUntilGame();
+        game.winPoint(second);
+
+         playUntilGame();
+        game.winPoint(second);
+
+         playUntilGame();
+        game.winPoint(second);
+
+         playUntilGame();
+        game.winPoint(second);
+
+         playUntilGame();
+        game.winPoint(second);
+
+        GameResume gameResume = game.getGameResume();
+        //When
+        Record lastRecord = gameResume.getLastRecord();
+        assertThat(lastRecord.getTitle()).isEqualTo("Player 2 wins the game");
+        assertThat(lastRecord.getMessage()).isEqualTo("Player 2 wins the set");
+    }
+
     private void playUntilDeuce() {
         assertWInPoint(first);
         assertWInPoint(first);
@@ -112,5 +150,10 @@ public class GameTest {
         assertWInPoint(first);
         assertWInPoint(second);
         assertWInPoint(second);
+    }
+
+    private void playUntilGame() {
+        playUntilDeuce();
+        game.winPoint(second);
     }
 }

@@ -1,21 +1,29 @@
 package model;
 
+
+import static model.Point.ZERO;
+
 public class Score {
     private Player player;
     private Point currentPoint;
+    private Integer winnedSet;
 
     public Score(Player player) {
         this.player = player;
-        this.currentPoint = Point.ZERO;
+        this.currentPoint = ZERO;
+        this.winnedSet = 0;
     }
 
-    public void winAPoint(){
+    public void winAPoint() {
         this.currentPoint = this.currentPoint.getNextPoint();
     }
 
+    public void winASet() {
+        this.winnedSet += 1;
+    }
 
-    public void loseAdv(){
-        if(currentPoint == Point.ADV) {
+    public void loseAdv() {
+        if (currentPoint == Point.ADV) {
             this.currentPoint = Point.FOURTY;
         }
     }
@@ -24,7 +32,15 @@ public class Score {
         return player;
     }
 
-    public Point getCurrentPoint() {
+    public Point point() {
         return currentPoint;
+    }
+
+    public Integer getWinnedGame() {
+        return winnedSet;
+    }
+
+    public void init() {
+        this.currentPoint = ZERO;
     }
 }
