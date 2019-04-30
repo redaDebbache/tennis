@@ -18,14 +18,6 @@ public class GameRuleEngine {
     private static final String WINS_THE_GAME_LABEL = "%s wins the game";
     private static final String WINS_THE_SET_LABEL = "%s wins the set";
 
-    private static boolean winWithAdv(Point first, Point second) {
-        return (first == POINT || second == POINT) && Math.abs(first.getScore() - second.getScore()) == 1;
-    }
-
-    private static boolean winWithPoints(Point first, Point second) {
-        return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) >= 1;
-    }
-
     private static Record buildDeuceRecord(Score first, Score second, Player player) {
         return new Record(Point.DEUCE, Point.DEUCE, first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()));
     }
@@ -40,10 +32,6 @@ public class GameRuleEngine {
         Score winnerScore = first.getPlayer().equals(player) ? first : second;
         winnerScore.winATieBreak();
         return new Record(first.point(), second.point(), first.getWinnedGame(), second.getWinnedGame(), first.getTieBreak(), second.getTieBreak(), format(WINS_THE_GAME_LABEL, player.getName()), format(WINS_THE_SET_LABEL, player.getName()));
-    }
-
-    private static boolean winATieBreak(Score first, Score second) {
-        return first.getWinnedGame() >= 6 && second.getWinnedGame() >= 6 && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
     }
 
     private static Record buildSetWinnerRecord(Score first, Score second, Player player) {
@@ -66,8 +54,25 @@ public class GameRuleEngine {
         return new Record(first.point(), second.point(), first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()));
     }
 
+    private static boolean winWithAdv(Point first, Point second) {
+        return (first == POINT || second == POINT) && Math.abs(first.getScore() - second.getScore()) == 1;
+    }
+
+    private static boolean winWithPoints(Point first, Point second) {
+        return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) >= 1;
+    }
+
+    private static boolean winATieBreak(Score first, Score second) {
+        return first.getWinnedGame() >= 6 && second.getWinnedGame() >= 6 && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
+    }
+
     private static boolean winASet(Score first, Score second) {
         return (first.getWinnedGame() >= 6 || second.getWinnedGame() >= 6) && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
+    }
+
+    private static boolean advRule(Score first, Score second) {
+        List<Point> points = Stream.of(first, second).map(Score::point).collect(Collectors.toList());
+        return points.contains(ADV) && (points.contains(FOURTY) || points.contains(DEUCE));
     }
 
     private static void initscoresPoints(Score first, Score second) {
@@ -102,11 +107,6 @@ public class GameRuleEngine {
             return Stream.of(values()).filter(r -> r.condition.match(first, second)).findFirst().orElse(SIMPLE_POINT_WINNING_RULE);
         }
 
-    }
-
-    private static boolean advRule(Score first, Score second) {
-        List<Point> points = Stream.of(first, second).map(Score::point).collect(Collectors.toList());
-        return points.contains(ADV) && (points.contains(FOURTY) || points.contains(DEUCE));
     }
 
     public interface GameRule {

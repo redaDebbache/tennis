@@ -37,7 +37,6 @@ public class GameRuleEngineTest {
         when(first.point()).thenReturn(ADV);
         when(second.point()).thenReturn(FOURTY);
         //When
-        //When
         GameRuleEngine.RuleType ruleType = GameRuleEngine.RuleType.matchRule(first, second);
         //Then
         assertThat(ruleType).isEqualTo(ADV_RULE);

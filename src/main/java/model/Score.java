@@ -6,7 +6,7 @@ import static model.Point.ZERO;
 public class Score {
     private Player player;
     private Point currentPoint;
-    private int winnedSet;
+    private int wonSet;
     private int tieBreak;
 
     public Score(Player player) {
@@ -19,7 +19,7 @@ public class Score {
     }
 
     public void winASet() {
-        this.winnedSet += 1;
+        this.wonSet += 1;
     }
 
     public void winATieBreak(){
@@ -41,7 +41,7 @@ public class Score {
     }
 
     public Integer getWinnedGame() {
-        return winnedSet;
+        return wonSet;
     }
 
     public void init() {
