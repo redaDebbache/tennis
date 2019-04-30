@@ -5,7 +5,6 @@ import model.Point;
 import model.Record;
 import model.Score;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +16,9 @@ public class GameRuleEngine {
     private static final String WINS_1_POINT_LABEL = "%s wins 1 point";
     private static final String WINS_THE_GAME_LABEL = "%s wins the game";
     private static final String WINS_THE_SET_LABEL = "%s wins the set";
+    public static final int MIN_SET_WIN = 6;
+    public static final int MIN_WINNING_DIFFERENCE = 2;
+    public static final int MIN_POINTS_DIFFERENCE = 1;
 
     private static Record buildDeuceRecord(Score first, Score second, Player player) {
         return new Record(Point.DEUCE, Point.DEUCE, first.getWinnedGame(), second.getWinnedGame(), format(WINS_1_POINT_LABEL, player.getName()));
@@ -55,19 +57,19 @@ public class GameRuleEngine {
     }
 
     private static boolean winWithAdv(Point first, Point second) {
-        return (first == POINT || second == POINT) && Math.abs(first.getScore() - second.getScore()) == 1;
+        return (first == POINT || second == POINT) && Math.abs(first.getScore() - second.getScore()) == MIN_POINTS_DIFFERENCE;
     }
 
     private static boolean winWithPoints(Point first, Point second) {
-        return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) >= 1;
+        return (first == ADV || second == ADV) && Math.abs(first.getScore() - second.getScore()) >= MIN_POINTS_DIFFERENCE;
     }
 
     private static boolean winATieBreak(Score first, Score second) {
-        return first.getWinnedGame() >= 6 && second.getWinnedGame() >= 6 && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
+        return first.getWinnedGame() >= MIN_SET_WIN && second.getWinnedGame() >= MIN_SET_WIN && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= MIN_WINNING_DIFFERENCE;
     }
 
     private static boolean winASet(Score first, Score second) {
-        return (first.getWinnedGame() >= 6 || second.getWinnedGame() >= 6) && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= 2;
+        return (first.getWinnedGame() >= MIN_SET_WIN || second.getWinnedGame() >= MIN_SET_WIN) && Math.abs(first.getWinnedGame() - second.getWinnedGame()) >= MIN_WINNING_DIFFERENCE;
     }
 
     private static boolean advRule(Score first, Score second) {
